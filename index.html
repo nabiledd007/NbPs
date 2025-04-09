@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ideas Submission Form</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4cc9f0;
+            --warning-color: #f72585;
+            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-main);
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            transition: all 0.3s ease;
+        }
+
+        [dir="rtl"] {
+            direction: rtl;
+            text-align: right;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            font-size: 28px;
+        }
+
+        .language-switcher {
+            display: flex;
+            gap: 10px;
+        }
+
+        .lang-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .lang-btn:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .lang-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            margin-bottom: 30px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-title {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .qr-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border-top: 1px dashed #ddd;
+            margin-top: 30px;
+        }
+
+        .qr-title {
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        #qrcode {
+            margin: 15px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .qr-download {
+            margin-top: 10px;
+            background-color: var(--success-color);
+        }
+
+        .image-upload-container {
+            margin-top: 20px;
+        }
+
+        .image-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .image-preview-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border: 1px dashed #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remove-image {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(255, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .camera-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .camera-container {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        #cameraVideo {
+            width: 100%;
+            background: #333;
+        }
+
+        .camera-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #666;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .language-switcher {
+                align-self: flex-end;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        /* RTL specific styles */
+        [dir="rtl"] .form-label {
+            text-align: right;
+        }
+
+        [dir="rtl"] .language-switcher {
+            margin-left: 0;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-lightbulb"></i>
+                <span data-i18n="title">Ideas Submission</span>
+            </div>
+            <div class="language-switcher">
+                <button class="lang-btn active" data-lang="en">
+                    <i class="fas fa-language"></i> EN
+                </button>
+                <button class="lang-btn" data-lang="fr">
+                    <i class="fas fa-language"></i> FR
+                </button>
+                <button class="lang-btn" data-lang="ar">
+                    <i class="fas fa-language"></i> AR
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">
+                <i class="fas fa-pencil-alt"></i>
+                <span data-i18n="form_title">Share Your Idea</span>
+            </h2>
+            
+            <form id="ideaForm">
+                <div class="form-group">
+                    <label for="name" class="form-label" data-i18n="name_label">Your Name</label>
+                    <input type="text" id="name" name="name" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="matricule" class="form-label" data-i18n="matricule_label">Matricule (ID)</label>
+                    <input type="text" id="matricule" name="matricule" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ideaTitle" class="form-label" data-i18n="idea_title_label">Idea Title</label>
+                    <input type="text" id="ideaTitle" name="ideaTitle" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ideaDescription" class="form-label" data-i18n="idea_desc_label">Idea Description</label>
+                    <textarea id="ideaDescription" name="ideaDescription" class="form-control" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" data-i18n="category_label">Category</label>
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                        <label style="display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="category" value="product" checked> 
+                            <span data-i18n="category_product">Product</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="category" value="service"> 
+                            <span data-i18n="category_service">Service</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="category" value="process"> 
+                            <span data-i18n="category_process">Process</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="category" value="other"> 
+                            <span data-i18n="category_other">Other</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group image-upload-container">
+                    <label class="form-label" data-i18n="image_upload_label">Upload Images</label>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" id="uploadImageBtn" class="btn btn-secondary">
+                            <i class="fas fa-upload"></i> <span data-i18n="upload_btn">Upload</span>
+                        </button>
+                        <button type="button" id="openCameraBtn" class="btn btn-secondary">
+                            <i class="fas fa-camera"></i> <span data-i18n="camera_btn">Camera</span>
+                        </button>
+                    </div>
+                    <input type="file" id="imageUpload" accept="image/*" multiple style="display: none;">
+                    
+                    <div class="image-preview" id="imagePreview"></div>
+                </div>
+                
+                <button type="submit" class="btn btn-block" data-i18n="submit_btn">Submit Idea</button>
+            </form>
+            
+            <div class="qr-section">
+                <h3 class="qr-title" data-i18n="qr_title">Share this form via QR Code</h3>
+                <div id="qrcode"></div>
+                <button id="downloadQR" class="btn qr-download" data-i18n="download_qr">
+                    <i class="fas fa-download"></i> Download QR Code
+                </button>
+            </div>
+        </div>
+        
+        <div class="camera-modal" id="cameraModal">
+            <div class="camera-container">
+                <video id="cameraVideo" autoplay playsinline></video>
+                <div class="camera-buttons">
+                    <button id="captureBtn" class="btn">
+                        <i class="fas fa-camera"></i> <span data-i18n="capture_btn">Capture</span>
+                    </button>
+                    <button id="closeCameraBtn" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> <span data-i18n="close_btn">Close</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p data-i18n="footer_text">© 2023 Ideas Submission Platform. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        // Language translations
+        const translations = {
+            en: {
+                "title": "Ideas Submission",
+                "form_title": "Share Your Idea",
+                "name_label": "Your Name",
+                "matricule_label": "Matricule (ID)",
+                "idea_title_label": "Idea Title",
+                "idea_desc_label": "Idea Description",
+                "category_label": "Category",
+                "category_product": "Product",
+                "category_service": "Service",
+                "category_process": "Process",
+                "category_other": "Other",
+                "image_upload_label": "Upload Images",
+                "upload_btn": "Upload",
+                "camera_btn": "Camera",
+                "capture_btn": "Capture",
+                "close_btn": "Close",
+                "submit_btn": "Submit Idea",
+                "qr_title": "Share this form via QR Code",
+                "download_qr": "Download QR Code",
+                "footer_text": "© 2023 Ideas Submission Platform. All rights reserved."
+            },
+            fr: {
+                "title": "Soumission d'idées",
+                "form_title": "Partagez votre idée",
+                "name_label": "Votre nom",
+                "matricule_label": "Matricule (ID)",
+                "idea_title_label": "Titre de l'idée",
+                "idea_desc_label": "Description de l'idée",
+                "category_label": "Catégorie",
+                "category_product": "Produit",
+                "category_service": "Service",
+                "category_process": "Processus",
+                "category_other": "Autre",
+                "image_upload_label": "Télécharger des images",
+                "upload_btn": "Télécharger",
+                "camera_btn": "Caméra",
+                "capture_btn": "Capturer",
+                "close_btn": "Fermer",
+                "submit_btn": "Soumettre l'idée",
+                "qr_title": "Partagez ce formulaire via QR Code",
+                "download_qr": "Télécharger le QR Code",
+                "footer_text": "© 2023 Plateforme de soumission d'idées. Tous droits réservés."
+            },
+            ar: {
+                "title": "تقديم الأفكار",
+                "form_title": "شارك فكرتك",
+                "name_label": "اسمك",
+                "matricule_label": "رقم التسجيل (ID)",
+                "idea_title_label": "عنوان الفكرة",
+                "idea_desc_label": "وصف الفكرة",
+                "category_label": "الفئة",
+                "category_product": "منتج",
+                "category_service": "خدمة",
+                "category_process": "عملية",
+                "category_other": "أخرى",
+                "image_upload_label": "رفع الصور",
+                "upload_btn": "رفع",
+                "camera_btn": "الكاميرا",
+                "capture_btn": "التقاط",
+                "close_btn": "إغلاق",
+                "submit_btn": "تقديم الفكرة",
+                "qr_title": "شارك هذا النموذج عبر رمز الاستجابة السريعة",
+                "download_qr": "تحميل رمز الاستجابة السريعة",
+                "footer_text": "© 2023 منصة تقديم الأفكار. جميع الحقوق محفوظة."
+            }
+        };
+
+        // Current language
+        let currentLang = 'en';
+        let stream = null;
+        const images = [];
+
+        // Function to change language
+        function changeLanguage(lang) {
+            currentLang = lang;
+            
+            // Update all elements with data-i18n attribute
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+            
+            // Update RTL direction for Arabic
+            if (lang === 'ar') {
+                document.documentElement.setAttribute('dir', 'rtl');
+                document.documentElement.setAttribute('lang', 'ar');
+            } else {
+                document.documentElement.removeAttribute('dir');
+                document.documentElement.setAttribute('lang', lang);
+            }
+            
+            // Update active language button
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                if (btn.getAttribute('data-lang') === lang) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        // Initialize QR Code
+        function initQRCode() {
+            const currentUrl = window.location.href;
+            new QRCode(document.getElementById("qrcode"), {
+                text: currentUrl,
+                width: 180,
+                height: 180,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            // Download QR code
+            document.getElementById('downloadQR').addEventListener('click', function() {
+                const canvas = document.querySelector('#qrcode canvas');
+                const link = document.createElement('a');
+                link.download = 'idea-form-qrcode.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        // Handle image upload
+        function setupImageUpload() {
+            const uploadBtn = document.getElementById('uploadImageBtn');
+            const fileInput = document.getElementById('imageUpload');
+            const imagePreview = document.getElementById('imagePreview');
+            
+            uploadBtn.addEventListener('click', () => fileInput.click());
+            
+            fileInput.addEventListener('change', function() {
+                const files = Array.from(this.files);
+                if (files.length + images.length > 5) {
+                    alert(currentLang === 'en' ? 'Maximum 5 images allowed' : 
+                          currentLang === 'fr' ? 'Maximum 5 images autorisées' : 
+                          'الحد الأقصى 5 صور مسموح بها');
+                    return;
+                }
+                
+                files.forEach(file => {
+                    if (!file.type.match('image.*')) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        images.push(e.target.result);
+                        updateImagePreview();
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+        }
+
+        // Handle camera capture
+        function setupCamera() {
+            const cameraModal = document.getElementById('cameraModal');
+            const openCameraBtn = document.getElementById('openCameraBtn');
+            const closeCameraBtn = document.getElementById('closeCameraBtn');
+            const captureBtn = document.getElementById('captureBtn');
+            const video = document.getElementById('cameraVideo');
+            
+            openCameraBtn.addEventListener('click', async () => {
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    video.srcObject = stream;
+                    cameraModal.style.display = 'flex';
+                } catch (err) {
+                    alert(currentLang === 'en' ? 'Camera access denied' : 
+                          currentLang === 'fr' ? 'Accès à la caméra refusé' : 
+                          'تم رفض الوصول إلى الكاميرا');
+                }
+            });
+            
+            closeCameraBtn.addEventListener('click', () => {
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    stream = null;
+                }
+                cameraModal.style.display = 'none';
+            });
+            
+            captureBtn.addEventListener('click', () => {
+                if (images.length >= 5) {
+                    alert(currentLang === 'en' ? 'Maximum 5 images allowed' : 
+                          currentLang === 'fr' ? 'Maximum 5 images autorisées' : 
+                          'الحد الأقصى 5 صور مسموح بها');
+                    return;
+                }
+                
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                images.push(canvas.toDataURL('image/png'));
+                updateImagePreview();
+            });
+        }
+
+        // Update image preview
+        function updateImagePreview() {
+            const imagePreview = document.getElementById('imagePreview');
+            imagePreview.innerHTML = '';
+            
+            images.forEach((img, index) => {
+                const previewItem = document.createElement('div');
+                previewItem.className = 'image-preview-item';
+                
+                const imgElement = document.createElement('img');
+                imgElement.src = img;
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'remove-image';
+                removeBtn.innerHTML = '&times;';
+                removeBtn.addEventListener('click', () => {
+                    images.splice(index, 1);
+                    updateImagePreview();
+                });
+                
+                previewItem.appendChild(imgElement);
+                previewItem.appendChild(removeBtn);
+                imagePreview.appendChild(previewItem);
+            });
+        }
+
+        // Save to Google Sheets
+        async function saveToGoogleSheets(formData) {
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbwP0KhuDCaB6i_K5LcADr_Y3ik3VsvKyJSN5-PI39QXlvwDHvNolf3IzpH10c4Uqv_OHg/exec';
+            
+            try {
+                // Convert images to base64 strings
+                formData.images = JSON.stringify(images);
+                
+                const formDataEncoded = new URLSearchParams();
+                for (const key in formData) {
+                    formDataEncoded.append(key, formData[key]);
+                }
+
+                const response = await fetch(scriptURL, {
+                    method: 'POST',
+                    body: formDataEncoded,
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                });
+                
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Error saving to Google Sheets:', error);
+                throw error;
+            }
+        }
+
+        // Form submission
+        document.getElementById('ideaForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const formData = {
+                name: document.getElementById('name').value,
+                matricule: document.getElementById('matricule').value,
+                ideaTitle: document.getElementById('ideaTitle').value,
+                ideaDescription: document.getElementById('ideaDescription').value,
+                category: document.querySelector('input[name="category"]:checked').value
+            };
+            
+            try {
+                // Save to Google Sheets
+                await saveToGoogleSheets(formData);
+                
+                // Show success message
+                let successMessage = "Thank you for your submission!";
+                if (currentLang === 'fr') successMessage = "Merci pour votre soumission!";
+                if (currentLang === 'ar') successMessage = "شكرا لتقديمك!";
+                
+                alert(successMessage);
+                this.reset();
+                images.length = 0;
+                updateImagePreview();
+            } catch (error) {
+                let errorMessage = "Failed to submit. Please try again.";
+                if (currentLang === 'fr') errorMessage = "Échec de la soumission. Veuillez réessayer.";
+                if (currentLang === 'ar') errorMessage = "فشل التقديم. يرجى المحاولة مرة أخرى.";
+                
+                alert(errorMessage);
+            }
+        });
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up language switcher
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    changeLanguage(this.getAttribute('data-lang'));
+                });
+            });
+            
+            // Initialize QR code
+            initQRCode();
+            
+            // Set up image upload and camera
+            setupImageUpload();
+            setupCamera();
+        });
+    </script>
+</body>
+</html>
