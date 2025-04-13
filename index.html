@@ -454,6 +454,7 @@
             <div class="dice-arena">
                 <div class="dice-scene">
                     <div class="dice" id="dice">
+                        <!-- First set of images (1-6) -->
                         <div class="dice-face"><img src="https://raw.githubusercontent.com/nabiledd007/NbPs/main/1.jpg" alt="1"></div>
                         <div class="dice-face"><img src="https://raw.githubusercontent.com/nabiledd007/NbPs/main/2.jpg" alt="2"></div>
                         <div class="dice-face"><img src="https://raw.githubusercontent.com/nabiledd007/NbPs/main/3.jpg" alt="3"></div>
@@ -505,6 +506,7 @@
         let currentTurnRef = null;
         let rolesAssigned = false;
         let isRolling = false;
+        let currentImageSet = 1; // 1 for images 1-6, 2 for images 7-12, 3 for images 13-18
 
         // DOM elements
         const setupScreen = document.getElementById('setup-screen');
@@ -809,6 +811,9 @@
             isRolling = true;
             rollDiceBtn.disabled = true;
             
+            // Cycle through image sets (1-6, 7-12, 13-18)
+            currentImageSet = currentImageSet < 3 ? currentImageSet + 1 : 1;
+            
             // Generate random number between 1 and 6
             const rollValue = Math.floor(Math.random() * 6) + 1;
             
@@ -828,6 +833,9 @@
             // Remove continuous rotation and add rolling animation
             dice.classList.remove('attention');
             dice.classList.add('rolling');
+            
+            // Switch dice images based on currentImageSet
+            switchDiceImages(currentImageSet);
             
             // Update game state in Firebase after animation
             setTimeout(() => {
@@ -875,6 +883,49 @@
                     rollDiceBtn.disabled = false;
                 });
             }, 2000);
+        }
+
+        // Switch between dice image sets
+        function switchDiceImages(setNumber) {
+            const diceFaces = dice.querySelectorAll('.dice-face img');
+            
+            switch(setNumber) {
+                case 1:
+                    // Set images 1-6
+                    diceFaces[0].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/1.jpg";
+                    diceFaces[1].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/2.jpg";
+                    diceFaces[2].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/3.jpg";
+                    diceFaces[3].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/4.jpg";
+                    diceFaces[4].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/5.jpg";
+                    diceFaces[5].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/6.jpg";
+                    break;
+                case 2:
+                    // Set images 7-12
+                    diceFaces[0].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/7.jpg";
+                    diceFaces[1].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/8.jpg";
+                    diceFaces[2].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/9.jpg";
+                    diceFaces[3].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/10.jpg";
+                    diceFaces[4].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/11.jpg";
+                    diceFaces[5].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/12.jpg";
+                    break;
+                case 3:
+                    // Set images 13-18
+                    diceFaces[0].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/13.jpg";
+                    diceFaces[1].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/14.jpg";
+                    diceFaces[2].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/15.jpg";
+                    diceFaces[3].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/16.jpg";
+                    diceFaces[4].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/17.jpg";
+                    diceFaces[5].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/18.jpg";
+                    break;
+                default:
+                    // Default to first set if invalid
+                    diceFaces[0].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/1.jpg";
+                    diceFaces[1].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/2.jpg";
+                    diceFaces[2].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/3.jpg";
+                    diceFaces[3].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/4.jpg";
+                    diceFaces[4].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/5.jpg";
+                    diceFaces[5].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/6.jpg";
+            }
         }
 
         // Show dice roll result
