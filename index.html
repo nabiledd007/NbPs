@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sexy Position</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Orbitron:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00f0ff;
+            --secondary: #ff00e4;
+            --accent: #9600ff;
+            --dark: #0a0a1a;
+            --light: #f0f0ff;
+            --success: #00ff88;
+            --warning: #ffcc00;
+            --error: #ff0055;
+            --text: #ffffff;
+            --bg: linear-gradient(135deg, #050520 0%, #0a0a30 100%);
+            --card-bg: rgba(20, 20, 50, 0.7);
+            --role-leader: #ff00e4;
+            --role-vip: #9600ff;
+            --role-member: #00f0ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        header {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .player-name {
+            background: var(--card-bg);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+        }
+
+        .player-role {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .role-leader {
+            background: var(--role-leader);
+            color: white;
+            box-shadow: 0 0 10px rgba(255, 0, 228, 0.5);
+        }
+
+        .role-vip {
+            background: var(--role-vip);
+            color: white;
+            box-shadow: 0 0 10px rgba(150, 0, 255, 0.5);
+        }
+
+        .role-member {
+            background: var(--role-member);
+            color: var(--dark);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 800px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: var(--primary);
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .game-controls {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        input {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            background: rgba(10, 10, 30, 0.8);
+            color: white;
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.2);
+        }
+
+        button {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            color: var(--dark);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            letter-spacing: 1px;
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--accent), var(--primary));
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        button:hover::after {
+            opacity: 1;
+        }
+
+        button:disabled {
+            background: #333344;
+            color: #666677;
+            cursor: not-allowed;
+        }
+
+        button:disabled::after {
+            display: none;
+        }
+
+        button.secondary {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+        }
+
+        button.secondary:hover {
+            background: rgba(0, 240, 255, 0.1);
+        }
+
+        .dice-arena {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+
+        .dice-scene {
+            width: 180px;
+            height: 180px;
+            perspective: 1000px;
+            margin-bottom: 30px;
+        }
+
+        .dice {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1s ease-out;
+        }
+
+        .dice-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            border: 2px solid rgba(0, 240, 255, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(10, 10, 30, 0.9);
+            box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.2);
+            overflow: hidden;
+        }
+
+        .dice-face img {
+            width: 80%;
+            height: 80%;
+            object-fit: cover;
+            border-radius: 8px;
+            filter: drop-shadow(0 0 5px rgba(0, 240, 255, 0.5));
+        }
+
+        .dice-face:nth-child(1) { transform: rotateY(0deg) translateZ(90px); }
+        .dice-face:nth-child(2) { transform: rotateY(90deg) translateZ(90px); }
+        .dice-face:nth-child(3) { transform: rotateX(90deg) translateZ(90px); }
+        .dice-face:nth-child(4) { transform: rotateX(-90deg) translateZ(90px); }
+        .dice-face:nth-child(5) { transform: rotateY(-90deg) translateZ(90px); }
+        .dice-face:nth-child(6) { transform: rotateY(180deg) translateZ(90px); }
+
+        @keyframes turbo-roll {
+            0% { transform: rotateX(0) rotateY(0) rotateZ(0); }
+            20% { transform: rotateX(360deg) rotateY(180deg) rotateZ(90deg); }
+            40% { transform: rotateX(720deg) rotateY(360deg) rotateZ(180deg); }
+            60% { transform: rotateX(1080deg) rotateY(540deg) rotateZ(270deg); }
+            80% { transform: rotateX(1440deg) rotateY(720deg) rotateZ(360deg); }
+            100% { transform: var(--final-rotation); }
+        }
+
+        @keyframes continuous-rotation {
+            0% { transform: rotateX(0) rotateY(0) rotateZ(0); }
+            25% { transform: rotateX(90deg) rotateY(90deg) rotateZ(0); }
+            50% { transform: rotateX(180deg) rotateY(180deg) rotateZ(90deg); }
+            75% { transform: rotateX(270deg) rotateY(270deg) rotateZ(180deg); }
+            100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(270deg); }
+        }
+
+        .rolling {
+            animation: turbo-roll 2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .attention {
+            animation: continuous-rotation 4s linear infinite;
+        }
+
+        .game-info {
+            width: 100%;
+            background: rgba(10, 10, 40, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid rgba(0, 240, 255, 0.2);
+        }
+
+        .game-info h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            letter-spacing: 1px;
+        }
+
+        .players-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .player-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: rgba(20, 20, 60, 0.5);
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .player-item.current-turn {
+            background: rgba(0, 240, 255, 0.1);
+            border-left: 3px solid var(--primary);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+        }
+
+        .player-name {
+            font-weight: 600;
+        }
+
+        .status-message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: 600;
+            background: rgba(10, 10, 40, 0.8);
+            border-left: 4px solid var(--primary);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s;
+        }
+
+        .status-message.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .success {
+            border-left-color: var(--success);
+        }
+
+        .error {
+            border-left-color: var(--error);
+        }
+
+        .warning {
+            border-left-color: var(--warning);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .game-id-display {
+            background: rgba(0, 240, 255, 0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-family: monospace;
+            letter-spacing: 1px;
+            border: 1px solid rgba(0, 240, 255, 0.3);
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 20px 0;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 20px;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+            
+            .dice-scene {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .dice-face:nth-child(1) { transform: rotateY(0deg) translateZ(75px); }
+            .dice-face:nth-child(2) { transform: rotateY(90deg) translateZ(75px); }
+            .dice-face:nth-child(3) { transform: rotateX(90deg) translateZ(75px); }
+            .dice-face:nth-child(4) { transform: rotateX(-90deg) translateZ(75px); }
+            .dice-face:nth-child(5) { transform: rotateY(-90deg) translateZ(75px); }
+            .dice-face:nth-child(6) { transform: rotateY(180deg) translateZ(75px); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">Sexy Position</div>
+        <div class="player-info">
+            <div class="player-name" id="player-name-display"></div>
+            <div class="player-role hidden" id="player-role-display"></div>
+        </div>
+    </header>
+
+    <div class="game-container">
+        <div id="setup-screen">
+            <h2>lkwa dwa</h2>
+            <p> قواعد اللعبة، وإذا وافقت عليها، سنستمر. أرسل لعبة جديدة </p>
+            
+            <div class="game-controls">
+                <div class="input-group">
+                    <input type="text" id="player-name" placeholder="Your  name" required>
+                </div>
+                
+                <button id="new-game-btn">CREATE </button>
+                <button class="secondary" id="join-game-btn">JOIN </button>
+                
+                <div class="input-group hidden" id="join-game-inputs">
+                    <input type="text" id="game-id" placeholder="Enter  ID">
+                    <button id="confirm-join-btn">ENTER </button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="game-screen" class="hidden">
+            <h2> ID: <span class="game-id-display" id="game-id-display"></span></h2>
+            
+            <div class="dice-arena">
+                <div class="dice-scene">
+                    <div class="dice" id="dice">
+                        <div class="dice-face"><img src="https://raw.githubusercontent.com/nabiledd007/NbPs/main/1.jpg" alt="1"></div>
+                        <div class="dice-face"><img src="https://raw.githubusercontent.com/nabiledd007/NbPs/main/2.jpg" alt="2"></div>
+                        <div class="dice-face"><img src="https://raw.githubusercontent.com/nabiledd007/NbPs/main/3.jpg" alt="3"></div>
+                        <div class="dice-face"><img src="https://raw.githubusercontent.com/nabiledd007/NbPs/main/4.jpg" alt="4"></div>
+                        <div class="dice-face"><img src="https://raw.githubusercontent.com/nabiledd007/NbPs/main/5.jpg" alt="5"></div>
+                        <div class="dice-face"><img src="https://raw.githubusercontent.com/nabiledd007/NbPs/main/6.jpg" alt="6"></div>
+                    </div>
+                </div>
+                
+                <button id="roll-dice-btn">NB CODE</button>
+            </div>
+            
+            <div class="game-info">
+                <h3> PLAYERS</h3>
+                <div class="players-list" id="players-list"></div>
+            </div>
+            
+            <div id="status-message" class="status-message hidden"></div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2025 By khorzi</p>
+    </footer>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD7Eut7HwkZtKrUklnrwrggrxpw5u8Dkak",
+            authDomain: "nbone-951e7.firebaseapp.com",
+            projectId: "nbone-951e7",
+            storageBucket: "nbone-951e7.firebasestorage.app",
+            messagingSenderId: "68924731304",
+            appId: "1:68924731304:web:6b7ed6c0124938f6ac379d",
+            measurementId: "G-DV8SVRC209"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Game state variables
+        let currentGameId = null;
+        let playerId = null;
+        let playerName = '';
+        let playerRole = '';
+        let gameRef = null;
+        let playersRef = null;
+        let currentTurnRef = null;
+        let rolesAssigned = false;
+        let isRolling = false;
+
+        // DOM elements
+        const setupScreen = document.getElementById('setup-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const playerNameInput = document.getElementById('player-name');
+        const gameIdInput = document.getElementById('game-id');
+        const joinGameInputs = document.getElementById('join-game-inputs');
+        const newGameBtn = document.getElementById('new-game-btn');
+        const joinGameBtn = document.getElementById('join-game-btn');
+        const confirmJoinBtn = document.getElementById('confirm-join-btn');
+        const rollDiceBtn = document.getElementById('roll-dice-btn');
+        const gameIdDisplay = document.getElementById('game-id-display');
+        const playersList = document.getElementById('players-list');
+        const statusMessage = document.getElementById('status-message');
+        const playerNameDisplay = document.getElementById('player-name-display');
+        const playerRoleDisplay = document.getElementById('player-role-display');
+        const dice = document.getElementById('dice');
+
+        // Event listeners
+        newGameBtn.addEventListener('click', createNewGame);
+        joinGameBtn.addEventListener('click', showJoinGameInputs);
+        confirmJoinBtn.addEventListener('click', joinExistingGame);
+        rollDiceBtn.addEventListener('click', rollDice);
+
+        // Show join game inputs
+        function showJoinGameInputs() {
+            playerName = playerNameInput.value.trim();
+            
+            if (!playerName) {
+                showStatusMessage('Please enter your  name', 'error');
+                return;
+            }
+            
+            joinGameInputs.classList.remove('hidden');
+            joinGameBtn.disabled = true;
+            playerNameInput.disabled = true;
+        }
+
+        // Create a new game
+        function createNewGame() {
+            playerName = playerNameInput.value.trim();
+            
+            if (!playerName) {
+                showStatusMessage('Please enter your  name', 'error');
+                return;
+            }
+            
+            // Generate a random 6-character game ID
+            currentGameId = Math.random().toString(36).substring(2, 8).toUpperCase();
+            playerId = generatePlayerId();
+            playerRole = 'leader'; // Creator is the leader
+            
+            // Create game in Firebase
+            gameRef = database.ref('games/' + currentGameId);
+            playersRef = database.ref('games/' + currentGameId + '/players');
+            currentTurnRef = database.ref('games/' + currentGameId + '/currentTurn');
+            
+            const gameData = {
+                createdAt: firebase.database.ServerValue.TIMESTAMP,
+                creator: playerId,
+                status: 'waiting',
+                currentRoll: null,
+                lastRoller: null,
+                currentTurn: playerId,
+                rolesAssigned: false
+            };
+            
+            gameRef.set(gameData).then(() => {
+                // Add the creator as the first player
+                return playersRef.child(playerId).set({
+                    name: playerName,
+                    joinedAt: firebase.database.ServerValue.TIMESTAMP,
+                    isOnline: true,
+                    role: playerRole,
+                    hasRolled: false
+                });
+            }).then(() => {
+                setupGameScreen();
+                listenToGameChanges();
+                showStatusMessage(' created! You are the Leader. Share the  ID with others.', 'success');
+            }).catch(error => {
+                showStatusMessage('Error creating arena: ' + error.message, 'error');
+            });
+        }
+
+        // Join an existing game
+        function joinExistingGame() {
+            playerName = playerNameInput.value.trim();
+            const gameId = gameIdInput.value.trim().toUpperCase();
+            
+            if (!playerName) {
+                showStatusMessage('Please enter your  name', 'error');
+                return;
+            }
+            
+            if (!gameId || gameId.length !== 6) {
+                showStatusMessage('Please enter a valid 6-character  ID', 'error');
+                return;
+            }
+            
+            currentGameId = gameId;
+            playerId = generatePlayerId();
+            
+            // Check if game exists
+            gameRef = database.ref('games/' + currentGameId);
+            playersRef = database.ref('games/' + currentGameId + '/players');
+            currentTurnRef = database.ref('games/' + currentGameId + '/currentTurn');
+            
+            gameRef.once('value').then(snapshot => {
+                if (!snapshot.exists()) {
+                    throw new Error('Arena not found');
+                }
+                
+                // Add player to the game
+                return playersRef.child(playerId).set({
+                    name: playerName,
+                    joinedAt: firebase.database.ServerValue.TIMESTAMP,
+                    isOnline: true,
+                    hasRolled: false
+                });
+            }).then(() => {
+                setupGameScreen();
+                listenToGameChanges();
+                showStatusMessage('You have entered the ! Awaiting role assignment.', 'success');
+            }).catch(error => {
+                showStatusMessage('Error joining : ' + error.message, 'error');
+            });
+        }
+
+        // Set up the game screen
+        function setupGameScreen() {
+            setupScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            gameIdDisplay.textContent = currentGameId;
+            playerNameDisplay.textContent = playerName;
+            
+            if (playerRole) {
+                playerRoleDisplay.textContent = playerRole;
+                playerRoleDisplay.className = `player-role role-${playerRole}`;
+                playerRoleDisplay.classList.remove('hidden');
+            }
+            
+            // Set up player presence
+            setupPlayerPresence();
+        }
+
+        // Listen to game changes
+        function listenToGameChanges() {
+            // Listen for players joining/leaving
+            playersRef.on('value', snapshot => {
+                const players = snapshot.val();
+                updatePlayersList(players);
+                assignRolesIfNeeded(players);
+            });
+            
+            // Listen for dice rolls
+            gameRef.child('currentRoll').on('value', snapshot => {
+                const rollValue = snapshot.val();
+                if (rollValue !== null && rollValue !== undefined) {
+                    showDiceRoll(rollValue);
+                }
+            });
+            
+            // Listen for current turn changes
+            currentTurnRef.on('value', snapshot => {
+                const currentTurnPlayerId = snapshot.val();
+                updateTurnIndicator(currentTurnPlayerId);
+                
+                // Add continuous rotation to dice when it's our turn (unless we're already rolling)
+                if (currentTurnPlayerId === playerId && !isRolling) {
+                    dice.classList.add('attention');
+                } else {
+                    dice.classList.remove('attention');
+                }
+            });
+            
+            // Listen for role assignments
+            gameRef.child('rolesAssigned').on('value', snapshot => {
+                rolesAssigned = snapshot.val() || false;
+            });
+        }
+
+        // Assign roles to players if not already assigned
+        function assignRolesIfNeeded(players) {
+            if (!players || rolesAssigned) return;
+            
+            const playerCount = Object.keys(players).length;
+            
+            // Only assign roles if we have at least 2 players
+            if (playerCount >= 2) {
+                const playerIds = Object.keys(players);
+                let roles = [];
+                
+                // Determine roles based on number of players
+                if (playerCount === 2) {
+                    roles = ['leader', 'vip'];
+                } else if (playerCount === 3) {
+                    roles = ['leader', 'vip', 'member'];
+                } else {
+                    roles = ['leader', 'vip', 'member'];
+                    // Fill remaining with members
+                    for (let i = 3; i < playerCount; i++) {
+                        roles.push('member');
+                    }
+                }
+                
+                // Shuffle roles (except leader remains leader)
+                const leaderIndex = playerIds.indexOf(gameRef.creator);
+                if (leaderIndex > -1) {
+                    roles[leaderIndex] = 'leader';
+                }
+                
+                // Assign roles to players
+                const updates = {};
+                playerIds.forEach((playerId, index) => {
+                    updates[`${playerId}/role`] = roles[index];
+                    
+                    // Update local player role if it's us
+                    if (playerId === playerId) {
+                        playerRole = roles[index];
+                        if (playerRoleDisplay) {
+                            playerRoleDisplay.textContent = playerRole;
+                            playerRoleDisplay.className = `player-role role-${playerRole}`;
+                            playerRoleDisplay.classList.remove('hidden');
+                        }
+                    }
+                });
+                
+                // Mark roles as assigned
+                gameRef.update({
+                    rolesAssigned: true,
+                    ...updates
+                });
+            }
+        }
+
+        // Update players list
+        function updatePlayersList(players) {
+            playersList.innerHTML = '';
+            
+            if (!players) return;
+            
+            Object.entries(players).forEach(([playerKey, player]) => {
+                const playerElement = document.createElement('div');
+                playerElement.className = 'player-item';
+                playerElement.dataset.id = playerKey;
+                
+                if (playerKey === playerId) {
+                    playerElement.classList.add('current-turn');
+                }
+                
+                const playerNameElement = document.createElement('div');
+                playerNameElement.className = 'player-name';
+                playerNameElement.textContent = player.name;
+                
+                const playerRoleElement = document.createElement('div');
+                playerRoleElement.className = `player-role role-${player.role || 'member'}`;
+                playerRoleElement.textContent = player.role || 'member';
+                
+                playerElement.appendChild(playerNameElement);
+                playerElement.appendChild(playerRoleElement);
+                playersList.appendChild(playerElement);
+            });
+        }
+
+        // Update turn indicator
+        function updateTurnIndicator(currentTurnPlayerId) {
+            const playerItems = document.querySelectorAll('.player-item');
+            
+            playerItems.forEach(item => {
+                item.classList.remove('current-turn');
+            });
+            
+            if (currentTurnPlayerId === playerId) {
+                rollDiceBtn.disabled = false;
+                document.querySelector(`.player-item[data-id="${playerId}"]`).classList.add('current-turn');
+                showStatusMessage('Your turn to roll the dice!', 'success');
+                
+                // Add continuous rotation to dice (unless we're already rolling)
+                if (!isRolling) {
+                    dice.classList.add('attention');
+                }
+            } else {
+                rollDiceBtn.disabled = true;
+                
+                // Remove continuous rotation from dice
+                dice.classList.remove('attention');
+                
+                // Find the current turn player's name
+                playersRef.child(currentTurnPlayerId).once('value').then(snapshot => {
+                    const player = snapshot.val();
+                    if (player) {
+                        document.querySelector(`.player-item[data-id="${currentTurnPlayerId}"]`).classList.add('current-turn');
+                        showStatusMessage(`Waiting for ${player.name} (${player.role}) to roll...`, 'warning');
+                    }
+                });
+            }
+        }
+
+        // Roll the dice
+        function rollDice() {
+            isRolling = true;
+            rollDiceBtn.disabled = true;
+            
+            // Generate random number between 1 and 6
+            const rollValue = Math.floor(Math.random() * 6) + 1;
+            
+            // Set the final rotation for the dice
+            const rotations = {
+                1: 'rotateX(0deg) rotateY(0deg) rotateZ(0deg)',
+                2: 'rotateX(0deg) rotateY(-90deg) rotateZ(0deg)',
+                3: 'rotateX(-90deg) rotateY(0deg) rotateZ(0deg)',
+                4: 'rotateX(90deg) rotateY(0deg) rotateZ(0deg)',
+                5: 'rotateX(0deg) rotateY(90deg) rotateZ(0deg)',
+                6: 'rotateX(0deg) rotateY(180deg) rotateZ(0deg)'
+            };
+            
+            // Set CSS variable for final rotation
+            dice.style.setProperty('--final-rotation', rotations[rollValue]);
+            
+            // Remove continuous rotation and add rolling animation
+            dice.classList.remove('attention');
+            dice.classList.add('rolling');
+            
+            // Update game state in Firebase after animation
+            setTimeout(() => {
+                // Mark that the player has rolled
+                playersRef.child(playerId).update({ hasRolled: true });
+                
+                // Update the roll result and last roller
+                gameRef.update({
+                    currentRoll: rollValue,
+                    lastRoller: playerId
+                }).then(() => {
+                    // Determine next turn
+                    return playersRef.once('value').then(snapshot => {
+                        const players = snapshot.val();
+                        const playerIds = Object.keys(players);
+                        const currentIndex = playerIds.indexOf(playerId);
+                        let nextIndex = (currentIndex + 1) % playerIds.length;
+                        
+                        // Find next player who hasn't rolled yet
+                        let rounds = 0;
+                        while (players[playerIds[nextIndex]].hasRolled && rounds < playerIds.length) {
+                            nextIndex = (nextIndex + 1) % playerIds.length;
+                            rounds++;
+                        }
+                        
+                        // If all players have rolled, reset hasRolled and start new round
+                        if (rounds >= playerIds.length) {
+                            const resetUpdates = {};
+                            playerIds.forEach(id => {
+                                resetUpdates[`${id}/hasRolled`] = false;
+                            });
+                            
+                            return playersRef.update(resetUpdates).then(() => {
+                                return currentTurnRef.set(playerIds[0]);
+                            });
+                        } else {
+                            return currentTurnRef.set(playerIds[nextIndex]);
+                        }
+                    });
+                }).then(() => {
+                    isRolling = false;
+                }).catch(error => {
+                    isRolling = false;
+                    showStatusMessage('Error rolling dice: ' + error.message, 'error');
+                    rollDiceBtn.disabled = false;
+                });
+            }, 2000);
+        }
+
+        // Show dice roll result
+        function showDiceRoll(rollValue) {
+            // Show who rolled the dice
+            gameRef.child('lastRoller').once('value').then(snapshot => {
+                const rollerId = snapshot.val();
+                if (rollerId) {
+                    playersRef.child(rollerId).once('value').then(playerSnapshot => {
+                        const roller = playerSnapshot.val();
+                        const message = `${roller.name} (${roller.role}) rolled a ${rollValue}!`;
+                        if (rollerId === playerId) {
+                            showStatusMessage(`You rolled a ${rollValue}!`, 'success');
+                        } else {
+                            showStatusMessage(message, 'success');
+                        }
+                    });
+                }
+            });
+        }
+
+        // Set up player presence
+        function setupPlayerPresence() {
+            // Mark player as online
+            const playerRef = playersRef.child(playerId);
+            playerRef.update({ isOnline: true });
+            
+            // Set up disconnect handler
+            const disconnectRef = database.ref('.info/connected');
+            disconnectRef.on('value', snapshot => {
+                if (snapshot.val() === false) return;
+                
+                // When we disconnect, remove this player
+                playerRef.onDisconnect().update({ isOnline: false });
+            });
+            
+            // Handle window close/tab close
+            window.addEventListener('beforeunload', () => {
+                playerRef.update({ isOnline: false });
+            });
+        }
+
+        // Generate a player ID
+        function generatePlayerId() {
+            return 'player_' + Math.random().toString(36).substring(2, 9);
+        }
+
+        // Show status message
+        function showStatusMessage(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message ${type}`;
+            statusMessage.classList.add('visible');
+            
+            // Hide after 5 seconds
+            setTimeout(() => {
+                statusMessage.classList.remove('visible');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
