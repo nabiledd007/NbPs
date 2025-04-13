@@ -847,29 +847,22 @@
                     currentRoll: rollValue,
                     lastRoller: playerId
                 }).then(() => {
-                    // Determine next turn
+                    // Determine next turn - simple rotation through all players
                     return playersRef.once('value').then(snapshot => {
                         const players = snapshot.val();
                         const playerIds = Object.keys(players);
                         const currentIndex = playerIds.indexOf(playerId);
-                        let nextIndex = (currentIndex + 1) % playerIds.length;
+                        const nextIndex = (currentIndex + 1) % playerIds.length;
                         
-                        // Find next player who hasn't rolled yet
-                        let rounds = 0;
-                        while (players[playerIds[nextIndex]].hasRolled && rounds < playerIds.length) {
-                            nextIndex = (nextIndex + 1) % playerIds.length;
-                            rounds++;
-                        }
-                        
-                        // If all players have rolled, reset hasRolled and start new round
-                        if (rounds >= playerIds.length) {
+                        // Reset hasRolled for all players when we complete a full rotation
+                        if (nextIndex === 0) {
                             const resetUpdates = {};
                             playerIds.forEach(id => {
                                 resetUpdates[`${id}/hasRolled`] = false;
                             });
                             
                             return playersRef.update(resetUpdates).then(() => {
-                                return currentTurnRef.set(playerIds[0]);
+                                return currentTurnRef.set(playerIds[nextIndex]);
                             });
                         } else {
                             return currentTurnRef.set(playerIds[nextIndex]);
