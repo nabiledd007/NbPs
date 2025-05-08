@@ -384,6 +384,35 @@
             border: 1px solid rgba(0, 240, 255, 0.3);
         }
 
+        .level-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .level-btn {
+            padding: 10px 15px;
+            font-size: 14px;
+            background: rgba(0, 240, 255, 0.1);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .level-btn:hover {
+            background: rgba(0, 240, 255, 0.2);
+        }
+
+        .level-btn.active {
+            background: var(--primary);
+            color: var(--dark);
+            font-weight: bold;
+        }
+
         footer {
             margin-top: auto;
             padding: 20px 0;
@@ -416,6 +445,15 @@
             .dice-face:nth-child(4) { transform: rotateX(-90deg) translateZ(75px); }
             .dice-face:nth-child(5) { transform: rotateY(-90deg) translateZ(75px); }
             .dice-face:nth-child(6) { transform: rotateY(180deg) translateZ(75px); }
+            
+            .level-selector {
+                gap: 8px;
+            }
+            
+            .level-btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
@@ -430,31 +468,37 @@
 
     <div class="game-container">
         <div id="setup-screen">
-            <h2>lkwa dwa</h2>
-            <p> قواعد اللعبة، وإذا وافقت عليها، سنستمر. أرسل لعبة جديدة </p>
+            <h2>Welcome to the Game</h2>
+            <p>Create a new game or join an existing one to start playing with your friends!</p>
             
             <div class="game-controls">
                 <div class="input-group">
-                    <input type="text" id="player-name" placeholder="Your  name" required>
+                    <input type="text" id="player-name" placeholder="Your name" required>
                 </div>
                 
-                <button id="new-game-btn">CREATE </button>
-                <button class="secondary" id="join-game-btn">JOIN </button>
+                <button id="new-game-btn">CREATE GAME</button>
+                <button class="secondary" id="join-game-btn">JOIN GAME</button>
                 
                 <div class="input-group hidden" id="join-game-inputs">
-                    <input type="text" id="game-id" placeholder="Enter  ID">
-                    <button id="confirm-join-btn">ENTER </button>
+                    <input type="text" id="game-id" placeholder="Enter Game ID">
+                    <button id="confirm-join-btn">JOIN</button>
                 </div>
             </div>
         </div>
         
         <div id="game-screen" class="hidden">
-            <h2> ID: <span class="game-id-display" id="game-id-display"></span></h2>
+            <h2>Game ID: <span class="game-id-display" id="game-id-display"></span></h2>
+            
+            <div class="level-selector">
+                <button class="level-btn active" data-level="1">Level 1</button>
+                <button class="level-btn" data-level="2">Level 2</button>
+                <button class="level-btn" data-level="3">Level 3</button>
+                <button class="level-btn" data-level="4">Level 4</button>
+            </div>
             
             <div class="dice-arena">
                 <div class="dice-scene">
                     <div class="dice" id="dice">
-                        <!-- First set of images (1-6) -->
                         <div class="dice-face"><img src="https://raw.githubusercontent.com/nabiledd007/NbPs/main/1.jpg" alt="1"></div>
                         <div class="dice-face"><img src="https://raw.githubusercontent.com/nabiledd007/NbPs/main/2.jpg" alt="2"></div>
                         <div class="dice-face"><img src="https://raw.githubusercontent.com/nabiledd007/NbPs/main/3.jpg" alt="3"></div>
@@ -464,11 +508,11 @@
                     </div>
                 </div>
                 
-                <button id="roll-dice-btn">NB CODE</button>
+                <button id="roll-dice-btn">ROLL DICE</button>
             </div>
             
             <div class="game-info">
-                <h3> PLAYERS</h3>
+                <h3>PLAYERS</h3>
                 <div class="players-list" id="players-list"></div>
             </div>
             
@@ -486,7 +530,7 @@
             apiKey: "AIzaSyD7Eut7HwkZtKrUklnrwrggrxpw5u8Dkak",
             authDomain: "nbone-951e7.firebaseapp.com",
             projectId: "nbone-951e7",
-            storageBucket: "nbone-951e7.firebasestorage.app",
+            storageBucket: "nbone-951e7.appspot.com",
             messagingSenderId: "68924731304",
             appId: "1:68924731304:web:6b7ed6c0124938f6ac379d",
             measurementId: "G-DV8SVRC209"
@@ -506,7 +550,7 @@
         let currentTurnRef = null;
         let rolesAssigned = false;
         let isRolling = false;
-        let currentImageSet = 1; // 1 for images 1-6, 2 for images 7-12, 3 for images 13-18
+        let currentImageSet = 1; // 1-4 for different image sets
 
         // DOM elements
         const setupScreen = document.getElementById('setup-screen');
@@ -524,19 +568,34 @@
         const playerNameDisplay = document.getElementById('player-name-display');
         const playerRoleDisplay = document.getElementById('player-role-display');
         const dice = document.getElementById('dice');
+        const levelButtons = document.querySelectorAll('.level-btn');
 
         // Event listeners
         newGameBtn.addEventListener('click', createNewGame);
         joinGameBtn.addEventListener('click', showJoinGameInputs);
         confirmJoinBtn.addEventListener('click', joinExistingGame);
         rollDiceBtn.addEventListener('click', rollDice);
+        
+        // Add event listeners to level buttons
+        levelButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons
+                levelButtons.forEach(btn => btn.classList.remove('active'));
+                // Add active class to clicked button
+                button.classList.add('active');
+                // Change image set
+                currentImageSet = parseInt(button.dataset.level);
+                // Update dice images immediately
+                switchDiceImages(currentImageSet);
+            });
+        });
 
         // Show join game inputs
         function showJoinGameInputs() {
             playerName = playerNameInput.value.trim();
             
             if (!playerName) {
-                showStatusMessage('Please enter your  name', 'error');
+                showStatusMessage('Please enter your name', 'error');
                 return;
             }
             
@@ -550,7 +609,7 @@
             playerName = playerNameInput.value.trim();
             
             if (!playerName) {
-                showStatusMessage('Please enter your  name', 'error');
+                showStatusMessage('Please enter your name', 'error');
                 return;
             }
             
@@ -586,9 +645,9 @@
             }).then(() => {
                 setupGameScreen();
                 listenToGameChanges();
-                showStatusMessage(' created! You are the Leader. Share the  ID with others.', 'success');
+                showStatusMessage('Game created! You are the Leader. Share the Game ID with others.', 'success');
             }).catch(error => {
-                showStatusMessage('Error creating arena: ' + error.message, 'error');
+                showStatusMessage('Error creating game: ' + error.message, 'error');
             });
         }
 
@@ -598,12 +657,12 @@
             const gameId = gameIdInput.value.trim().toUpperCase();
             
             if (!playerName) {
-                showStatusMessage('Please enter your  name', 'error');
+                showStatusMessage('Please enter your name', 'error');
                 return;
             }
             
             if (!gameId || gameId.length !== 6) {
-                showStatusMessage('Please enter a valid 6-character  ID', 'error');
+                showStatusMessage('Please enter a valid 6-character Game ID', 'error');
                 return;
             }
             
@@ -617,7 +676,7 @@
             
             gameRef.once('value').then(snapshot => {
                 if (!snapshot.exists()) {
-                    throw new Error('Arena not found');
+                    throw new Error('Game not found');
                 }
                 
                 // Add player to the game
@@ -630,9 +689,9 @@
             }).then(() => {
                 setupGameScreen();
                 listenToGameChanges();
-                showStatusMessage('You have entered the ! Awaiting role assignment.', 'success');
+                showStatusMessage('You have joined the game! Awaiting role assignment.', 'success');
             }).catch(error => {
-                showStatusMessage('Error joining : ' + error.message, 'error');
+                showStatusMessage('Error joining game: ' + error.message, 'error');
             });
         }
 
@@ -714,31 +773,34 @@
                 }
                 
                 // Shuffle roles (except leader remains leader)
-                const leaderIndex = playerIds.indexOf(gameRef.creator);
-                if (leaderIndex > -1) {
-                    roles[leaderIndex] = 'leader';
-                }
-                
-                // Assign roles to players
-                const updates = {};
-                playerIds.forEach((playerId, index) => {
-                    updates[`${playerId}/role`] = roles[index];
-                    
-                    // Update local player role if it's us
-                    if (playerId === playerId) {
-                        playerRole = roles[index];
-                        if (playerRoleDisplay) {
-                            playerRoleDisplay.textContent = playerRole;
-                            playerRoleDisplay.className = `player-role role-${playerRole}`;
-                            playerRoleDisplay.classList.remove('hidden');
-                        }
+                gameRef.child('creator').once('value').then(snapshot => {
+                    const creatorId = snapshot.val();
+                    const leaderIndex = playerIds.indexOf(creatorId);
+                    if (leaderIndex > -1) {
+                        roles[leaderIndex] = 'leader';
                     }
-                });
-                
-                // Mark roles as assigned
-                gameRef.update({
-                    rolesAssigned: true,
-                    ...updates
+                    
+                    // Assign roles to players
+                    const updates = {};
+                    playerIds.forEach((playerId, index) => {
+                        updates[`${playerId}/role`] = roles[index];
+                        
+                        // Update local player role if it's us
+                        if (playerId === playerId) {
+                            playerRole = roles[index];
+                            if (playerRoleDisplay) {
+                                playerRoleDisplay.textContent = playerRole;
+                                playerRoleDisplay.className = `player-role role-${playerRole}`;
+                                playerRoleDisplay.classList.remove('hidden');
+                            }
+                        }
+                    });
+                    
+                    // Mark roles as assigned
+                    return gameRef.update({
+                        rolesAssigned: true,
+                        ...updates
+                    });
                 });
             }
         }
@@ -811,9 +873,6 @@
             isRolling = true;
             rollDiceBtn.disabled = true;
             
-            // Cycle through image sets (1-6, 7-12, 13-18)
-            currentImageSet = currentImageSet < 3 ? currentImageSet + 1 : 1;
-            
             // Generate random number between 1 and 6
             const rollValue = Math.floor(Math.random() * 6) + 1;
             
@@ -833,9 +892,6 @@
             // Remove continuous rotation and add rolling animation
             dice.classList.remove('attention');
             dice.classList.add('rolling');
-            
-            // Switch dice images based on currentImageSet
-            switchDiceImages(currentImageSet);
             
             // Update game state in Firebase after animation
             setTimeout(() => {
@@ -884,7 +940,7 @@
             
             switch(setNumber) {
                 case 1:
-                    // Set images 1-6
+                    // Level 1 images (1-6)
                     diceFaces[0].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/1.jpg";
                     diceFaces[1].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/2.jpg";
                     diceFaces[2].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/3.jpg";
@@ -893,7 +949,7 @@
                     diceFaces[5].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/6.jpg";
                     break;
                 case 2:
-                    // Set images 7-12
+                    // Level 2 images (7-12)
                     diceFaces[0].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/7.jpg";
                     diceFaces[1].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/8.jpg";
                     diceFaces[2].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/9.jpg";
@@ -902,7 +958,7 @@
                     diceFaces[5].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/12.jpg";
                     break;
                 case 3:
-                    // Set images 13-18
+                    // Level 3 images (13-18)
                     diceFaces[0].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/13.jpg";
                     diceFaces[1].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/14.jpg";
                     diceFaces[2].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/15.jpg";
@@ -910,8 +966,17 @@
                     diceFaces[4].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/17.jpg";
                     diceFaces[5].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/18.jpg";
                     break;
+                case 4:
+                    // Level 4 images (19-24)
+                    diceFaces[0].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/19.jpg";
+                    diceFaces[1].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/20.jpg";
+                    diceFaces[2].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/21.jpg";
+                    diceFaces[3].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/22.jpg";
+                    diceFaces[4].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/23.jpg";
+                    diceFaces[5].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/24.jpg";
+                    break;
                 default:
-                    // Default to first set if invalid
+                    // Default to level 1 if invalid
                     diceFaces[0].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/1.jpg";
                     diceFaces[1].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/2.jpg";
                     diceFaces[2].src = "https://raw.githubusercontent.com/nabiledd007/NbPs/main/3.jpg";
