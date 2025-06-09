@@ -393,10 +393,7 @@
         }
 
         .level-btn {
-            padding: 10px 15px;
-            font-size: 14px;
-            background: rgba(0, 240, 255, 0.1);
-            color: var(--primary);
+            padding: 10px var(--primary);
             border: 1px solid var(--primary);
             border-radius: 8px;
             cursor: pointer;
@@ -526,14 +523,17 @@
 
     <script>
         // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyD7Eut7HwkZtKrUklnrwrggrxpw5u8Dkak",
-            authDomain: "nbone-951e7.firebaseapp.com",
-            projectId: "nbone-951e7",
-            storageBucket: "nbone-951e7.appspot.com",
-            messagingSenderId: "68924731304",
-            appId: "1:68924731304:web:6b7ed6c0124938f6ac379d",
-            measurementId: "G-DV8SVRC209"
+        // Remove this Firebase initialization
+const firebaseConfig = {
+  apiKey: "AIzaSyCmqjuqmp4ixxV17kR7fhHbYxXvIahHWTc",
+  authDomain: "nbuser-f550a.firebaseapp.com",
+  databaseURL: "https://nbuser-f550a-default-rtdb.firebaseio.com",
+  projectId: "nbuser-f550a",
+  storageBucket: "nbuser-f550a.firebasestorage.app",
+  messagingSenderId: "401235957631",
+  appId: "1:401235957631:web:715ddd5f98dffd7993ec4a",
+  measurementId: "G-N9R9V26V88"
+
         };
 
         // Initialize Firebase
